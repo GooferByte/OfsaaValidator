@@ -1,20 +1,20 @@
-# src/file_parser.py
+# src/file_parser.py - COMPLETE FIXED VERSION
 
 import pandas as pd
 import chardet
-from typing import Tuple, Dict, List
+from typing import Dict, List
 from dataclasses import dataclass
 
 @dataclass
 class ParseResult:
     """Result of file parsing"""
     success: bool
-    dataframe: pd.DataFrame
-    metadata: Dict
-    errors: List[str]
+    dataframe: pd.DataFrame = None
+    errors: List[str] = None
+    metadata: Dict = None
 
 class FileParser:
-    """Intelligent file parser with auto-detection"""
+    """Parse and validate file structure"""
     
     def __init__(self, table_definition):
         self.table_def = table_definition
@@ -22,72 +22,82 @@ class FileParser:
     def parse(self, file_path: str) -> ParseResult:
         """Parse file and return DataFrame"""
         
-        errors = []
-        metadata = {
-            'file_path': file_path,
-            'table_name': self.table_def.table_name
-        }
-        
         try:
             # Detect encoding
-            detected_encoding = self._detect_encoding(file_path)
-            encoding_to_use = detected_encoding or self.table_def.encoding
-            metadata['detected_encoding'] = detected_encoding
-            metadata['encoding_used'] = encoding_to_use
+            encoding = self._detect_encoding(file_path)
+            print(f"  Encoding: {encoding}")
             
-            print(f"  Encoding: {encoding_to_use}")
-            
-            # Get column names
-            column_names = [col.name for col in sorted(self.table_def.columns, key=lambda x: x.position)]
-            metadata['expected_columns'] = len(column_names)
-            
-            # Parse file
+            # Read file
             df = pd.read_csv(
                 file_path,
                 sep=self.table_def.delimiter,
-                encoding=encoding_to_use,
-                names=column_names,
+                encoding=encoding,
+                header=None,
                 dtype=str,
-                keep_default_na=False,
-                on_bad_lines='skip'
+                na_filter=False
             )
             
-            metadata['actual_columns'] = len(df.columns)
-            metadata['total_records'] = len(df)
+            # Set column names from table definition
+            expected_cols = len(self.table_def.columns)
+            actual_cols = len(df.columns)
             
-            print(f"  Records: {len(df)}, Columns: {len(df.columns)}")
+            print(f"  Records: {len(df)}, Columns: {actual_cols}")
             
             # Validate column count
-            if len(df.columns) != len(column_names):
-                errors.append(
-                    f"Column count mismatch: Expected {len(column_names)}, found {len(df.columns)}"
+            if actual_cols != expected_cols:
+                return ParseResult(
+                    success=False,
+                    errors=[f"Column count mismatch. Expected: {expected_cols}, Found: {actual_cols}"]
                 )
             
-            # Replace empty strings with None
-            df = df.replace('', None)
+            # Assign column names
+            df.columns = [col.name for col in self.table_def.columns]
+            
+            # Create metadata
+            metadata = {
+                'file_path': file_path,
+                'table_name': self.table_def.name,  # FIXED: Changed from table_name to name
+                'encoding_used': encoding,
+                'expected_columns': expected_cols,
+                'actual_columns': actual_cols,
+                'total_records': len(df)
+            }
             
             return ParseResult(
-                success=len(errors) == 0,
+                success=True,
                 dataframe=df,
-                metadata=metadata,
-                errors=errors
+                errors=[],
+                metadata=metadata
             )
             
         except Exception as e:
-            errors.append(f"Failed to parse file: {str(e)}")
             return ParseResult(
                 success=False,
-                dataframe=pd.DataFrame(),
-                metadata=metadata,
-                errors=errors
+                errors=[f"Error parsing file: {str(e)}"]
             )
     
     def _detect_encoding(self, file_path: str) -> str:
         """Detect file encoding"""
+        
         try:
             with open(file_path, 'rb') as f:
-                raw_data = f.read(100000)
+                raw_data = f.read(100000)  # Read first 100KB
                 result = chardet.detect(raw_data)
-                return result['encoding']
+                detected_encoding = result['encoding']
+                
+                # Fallback to UTF-8 if detection fails
+                if not detected_encoding:
+                    return 'utf-8'
+                
+                # Handle common encoding variations
+                encoding_map = {
+                    'ascii': 'utf-8',
+                    'ISO-8859-1': 'latin-1',
+                    'Windows-1252': 'cp1252'
+                }
+                
+                return encoding_map.get(detected_encoding, detected_encoding)
+                
         except Exception:
-            return None
+            # Default to UTF-8 if detection fails
+            return 'utf-8'
