@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Table name="ACCT_ADDR" description="Account Address Dimension">
+    <FileFormat delimiter="~" encoding="UTF-8" dateFormat="YYYYMMDD"/>
+    <Columns>
+        <Column position="0" name="v_account_number" dataType="VARCHAR2" length="50" nullable="false" description="Account Number"/>
+        <Column position="1" name="n_addr_seq_id" dataType="NUMBER" length="10" nullable="false" description="Address Sequence ID"/>
+        <Column position="2" name="v_address_type" dataType="VARCHAR2" length="10" nullable="false" description="Address Type"/>
+        <Column position="3" name="v_address_line1" dataType="VARCHAR2" length="255" nullable="true" description="Address Line 1"/>
+        <Column position="4" name="v_address_line2" dataType="VARCHAR2" length="255" nullable="true" description="Address Line 2"/>
+        <Column position="5" name="v_address_line3" dataType="VARCHAR2" length="255" nullable="true" description="Address Line 3"/>
+        <Column position="6" name="v_city" dataType="VARCHAR2" length="100" nullable="true" description="City"/>
+        <Column position="7" name="v_state" dataType="VARCHAR2" length="100" nullable="true" description="State/Province"/>
+        <Column position="8" name="v_postal_code" dataType="VARCHAR2" length="20" nullable="true" description="Postal Code"/>
+        <Column position="9" name="v_country" dataType="VARCHAR2" length="10" nullable="false" description="Country Code"/>
+        <Column position="10" name="v_phone_number" dataType="VARCHAR2" length="50" nullable="true" description="Phone Number"/>
+        <Column position="11" name="v_email" dataType="VARCHAR2" length="100" nullable="true" description="Email Address"/>
+        <Column position="12" name="d_effective_from_date" dataType="DATE" length="8" nullable="true" description="Effective From Date"/>
+        <Column position="13" name="d_effective_to_date" dataType="DATE" length="8" nullable="true" description="Effective To Date"/>
+    </Columns>
+</Table>

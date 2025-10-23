@@ -1,0 +1,549 @@
+{
+  "summary": {
+    "total_records": 2306,
+    "valid_records": 0,
+    "rejected_records": 2306,
+    "data_quality_score": 0.0,
+    "processing_time_seconds": 0.53,
+    "total_errors": 8197
+  },
+  "parse_metadata": {
+    "file_path": "data/input/AccountAddress_20251007_DLY_01.txt",
+    "table_name": "ACCT_ADDR",
+    "detected_encoding": "utf-8",
+    "encoding_used": "utf-8",
+    "expected_columns": 14,
+    "actual_columns": 14,
+    "total_records": 2306
+  },
+  "error_analysis": {
+    "total_errors": 8197,
+    "error_by_type": {
+      "LENGTH_EXCEEDED": 3466,
+      "INVALID_DATA_TYPE": 2302,
+      "INVALID_FORMAT": 2294,
+      "VALUE_MISSING": 135
+    },
+    "error_by_column": {
+      "n_addr_seq_id": 4226,
+      "v_phone_number": 2294,
+      "v_address_type": 1664,
+      "v_country": 13
+    },
+    "worst_rows": [
+      {
+        "row": 7,
+        "error_count": 4
+      },
+      {
+        "row": 8,
+        "error_count": 4
+      },
+      {
+        "row": 9,
+        "error_count": 4
+      },
+      {
+        "row": 10,
+        "error_count": 4
+      },
+      {
+        "row": 11,
+        "error_count": 4
+      },
+      {
+        "row": 12,
+        "error_count": 4
+      },
+      {
+        "row": 13,
+        "error_count": 4
+      },
+      {
+        "row": 14,
+        "error_count": 4
+      },
+      {
+        "row": 15,
+        "error_count": 4
+      },
+      {
+        "row": 16,
+        "error_count": 4
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "severity": "CRITICAL",
+      "message": "Data quality is 0.0% - CRITICAL issues detected",
+      "action": "Fix 2306 rejected records before OFSAA load",
+      "priority": 1
+    },
+    {
+      "severity": "MEDIUM",
+      "message": "3466 length violations",
+      "action": "Truncate or split long values to meet field length requirements",
+      "priority": 2
+    },
+    {
+      "severity": "INFO",
+      "message": "Column \"n_addr_seq_id\" has 4226 errors",
+      "action": "Focus on fixing \"n_addr_seq_id\" first - it has the most issues",
+      "priority": 2
+    }
+  ],
+  "top_errors": [
+    {
+      "row": 1,
+      "column": "n_addr_seq_id",
+      "error_type": "INVALID_DATA_TYPE",
+      "message": "Invalid NUMBER format",
+      "actual_value": "HUAMBO",
+      "expected_value": "Valid NUMBER",
+      "fix_recommendation": "Remove non-numeric characters. Current value 'HUAMBO' contains invalid characters"
+    },
+    {
+      "row": 1,
+      "column": "v_phone_number",
+      "error_type": "INVALID_FORMAT",
+      "message": "Invalid phone format",
+      "actual_value": "AO",
+      "expected_value": "Valid phone number",
+      "fix_recommendation": "Remove non-numeric characters or provide valid phone number"
+    },
+    {
+      "row": 2,
+      "column": "n_addr_seq_id",
+      "error_type": "INVALID_DATA_TYPE",
+      "message": "Invalid NUMBER format",
+      "actual_value": "HUAMBO",
+      "expected_value": "Valid NUMBER",
+      "fix_recommendation": "Remove non-numeric characters. Current value 'HUAMBO' contains invalid characters"
+    },
+    {
+      "row": 2,
+      "column": "v_phone_number",
+      "error_type": "INVALID_FORMAT",
+      "message": "Invalid phone format",
+      "actual_value": "AO",
+      "expected_value": "Valid phone number",
+      "fix_recommendation": "Remove non-numeric characters or provide valid phone number"
+    },
+    {
+      "row": 3,
+      "column": "n_addr_seq_id",
+      "error_type": "INVALID_DATA_TYPE",
+      "message": "Invalid NUMBER format",
+      "actual_value": "HUAMBO",
+      "expected_value": "Valid NUMBER",
+      "fix_recommendation": "Remove non-numeric characters. Current value 'HUAMBO' contains invalid characters"
+    },
+    {
+      "row": 3,
+      "column": "v_phone_number",
+      "error_type": "INVALID_FORMAT",
+      "message": "Invalid phone format",
+      "actual_value": "AO",
+      "expected_value": "Valid phone number",
+      "fix_recommendation": "Remove non-numeric characters or provide valid phone number"
+    },
+    {
+      "row": 4,
+      "column": "n_addr_seq_id",
+      "error_type": "INVALID_DATA_TYPE",
+      "message": "Invalid NUMBER format",
+      "actual_value": "HUAMBO",
+      "expected_value": "Valid NUMBER",
+      "fix_recommendation": "Remove non-numeric characters. Current value 'HUAMBO' contains invalid characters"
+    },
+    {
+      "row": 4,
+      "column": "v_phone_number",
+      "error_type": "INVALID_FORMAT",
+      "message": "Invalid phone format",
+      "actual_value": "AO",
+      "expected_value": "Valid phone number",
+      "fix_recommendation": "Remove non-numeric characters or provide valid phone number"
+    },
+    {
+      "row": 5,
+      "column": "n_addr_seq_id",
+      "error_type": "INVALID_DATA_TYPE",
+      "message": "Invalid NUMBER format",
+      "actual_value": "HUAMBO",
+      "expected_value": "Valid NUMBER",
+      "fix_recommendation": "Remove non-numeric characters. Current value 'HUAMBO' contains invalid characters"
+    },
+    {
+      "row": 5,
+      "column": "v_phone_number",
+      "error_type": "INVALID_FORMAT",
+      "message": "Invalid phone format",
+      "actual_value": "AO",
+      "expected_value": "Valid phone number",
+      "fix_recommendation": "Remove non-numeric characters or provide valid phone number"
+    },
+    {
+      "row": 6,
+      "column": "n_addr_seq_id",
+      "error_type": "INVALID_DATA_TYPE",
+      "message": "Invalid NUMBER format",
+      "actual_value": "HUAMBO",
+      "expected_value": "Valid NUMBER",
+      "fix_recommendation": "Remove non-numeric characters. Current value 'HUAMBO' contains invalid characters"
+    },
+    {
+      "row": 6,
+      "column": "v_phone_number",
+      "error_type": "INVALID_FORMAT",
+      "message": "Invalid phone format",
+      "actual_value": "AO",
+      "expected_value": "Valid phone number",
+      "fix_recommendation": "Remove non-numeric characters or provide valid phone number"
+    },
+    {
+      "row": 7,
+      "column": "n_addr_seq_id",
+      "error_type": "INVALID_DATA_TYPE",
+      "message": "Invalid NUMBER format",
+      "actual_value": "RUA JOSE DE OLIVEIRA BARBOSA Nº19",
+      "expected_value": "Valid NUMBER",
+      "fix_recommendation": "Remove non-numeric characters. Current value 'RUA JOSE DE OLIVEIRA BARBOSA Nº19' contains invalid characters"
+    },
+    {
+      "row": 7,
+      "column": "n_addr_seq_id",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "RUA JOSE DE OLIVEIRA BARBOSA Nº19",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'RUA JOSE D...'"
+    },
+    {
+      "row": 7,
+      "column": "v_address_type",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "BAIRRO MAIANGA- MAIANGA",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'BAIRRO MAI...'"
+    },
+    {
+      "row": 7,
+      "column": "v_phone_number",
+      "error_type": "INVALID_FORMAT",
+      "message": "Invalid phone format",
+      "actual_value": "AO",
+      "expected_value": "Valid phone number",
+      "fix_recommendation": "Remove non-numeric characters or provide valid phone number"
+    },
+    {
+      "row": 8,
+      "column": "n_addr_seq_id",
+      "error_type": "INVALID_DATA_TYPE",
+      "message": "Invalid NUMBER format",
+      "actual_value": "RUA JOSE DE OLIVEIRA BARBOSA Nº19",
+      "expected_value": "Valid NUMBER",
+      "fix_recommendation": "Remove non-numeric characters. Current value 'RUA JOSE DE OLIVEIRA BARBOSA Nº19' contains invalid characters"
+    },
+    {
+      "row": 8,
+      "column": "n_addr_seq_id",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "RUA JOSE DE OLIVEIRA BARBOSA Nº19",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'RUA JOSE D...'"
+    },
+    {
+      "row": 8,
+      "column": "v_address_type",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "BAIRRO MAIANGA- MAIANGA",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'BAIRRO MAI...'"
+    },
+    {
+      "row": 8,
+      "column": "v_phone_number",
+      "error_type": "INVALID_FORMAT",
+      "message": "Invalid phone format",
+      "actual_value": "AO",
+      "expected_value": "Valid phone number",
+      "fix_recommendation": "Remove non-numeric characters or provide valid phone number"
+    },
+    {
+      "row": 9,
+      "column": "n_addr_seq_id",
+      "error_type": "INVALID_DATA_TYPE",
+      "message": "Invalid NUMBER format",
+      "actual_value": "RUA JOSE DE OLIVEIRA BARBOSA Nº19",
+      "expected_value": "Valid NUMBER",
+      "fix_recommendation": "Remove non-numeric characters. Current value 'RUA JOSE DE OLIVEIRA BARBOSA Nº19' contains invalid characters"
+    },
+    {
+      "row": 9,
+      "column": "n_addr_seq_id",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "RUA JOSE DE OLIVEIRA BARBOSA Nº19",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'RUA JOSE D...'"
+    },
+    {
+      "row": 9,
+      "column": "v_address_type",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "BAIRRO MAIANGA- MAIANGA",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'BAIRRO MAI...'"
+    },
+    {
+      "row": 9,
+      "column": "v_phone_number",
+      "error_type": "INVALID_FORMAT",
+      "message": "Invalid phone format",
+      "actual_value": "AO",
+      "expected_value": "Valid phone number",
+      "fix_recommendation": "Remove non-numeric characters or provide valid phone number"
+    },
+    {
+      "row": 10,
+      "column": "n_addr_seq_id",
+      "error_type": "INVALID_DATA_TYPE",
+      "message": "Invalid NUMBER format",
+      "actual_value": "AVENIDA DA REPÚBLICA CASA Nº 14",
+      "expected_value": "Valid NUMBER",
+      "fix_recommendation": "Remove non-numeric characters. Current value 'AVENIDA DA REPÚBLICA CASA Nº 14' contains invalid characters"
+    },
+    {
+      "row": 10,
+      "column": "n_addr_seq_id",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "AVENIDA DA REPÚBLICA CASA Nº 14",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'AVENIDA DA...'"
+    },
+    {
+      "row": 10,
+      "column": "v_address_type",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "BAIRRO KAPANGO URBANO - HUAMBO",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'BAIRRO KAP...'"
+    },
+    {
+      "row": 10,
+      "column": "v_phone_number",
+      "error_type": "INVALID_FORMAT",
+      "message": "Invalid phone format",
+      "actual_value": "AO",
+      "expected_value": "Valid phone number",
+      "fix_recommendation": "Remove non-numeric characters or provide valid phone number"
+    },
+    {
+      "row": 11,
+      "column": "n_addr_seq_id",
+      "error_type": "INVALID_DATA_TYPE",
+      "message": "Invalid NUMBER format",
+      "actual_value": "AVENIDA DA REPÚBLICA CASA Nº 14",
+      "expected_value": "Valid NUMBER",
+      "fix_recommendation": "Remove non-numeric characters. Current value 'AVENIDA DA REPÚBLICA CASA Nº 14' contains invalid characters"
+    },
+    {
+      "row": 11,
+      "column": "n_addr_seq_id",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "AVENIDA DA REPÚBLICA CASA Nº 14",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'AVENIDA DA...'"
+    },
+    {
+      "row": 11,
+      "column": "v_address_type",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "BAIRRO KAPANGO URBANO - HUAMBO",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'BAIRRO KAP...'"
+    },
+    {
+      "row": 11,
+      "column": "v_phone_number",
+      "error_type": "INVALID_FORMAT",
+      "message": "Invalid phone format",
+      "actual_value": "AO",
+      "expected_value": "Valid phone number",
+      "fix_recommendation": "Remove non-numeric characters or provide valid phone number"
+    },
+    {
+      "row": 12,
+      "column": "n_addr_seq_id",
+      "error_type": "INVALID_DATA_TYPE",
+      "message": "Invalid NUMBER format",
+      "actual_value": "AVENIDA DA REPÚBLICA CASA Nº 14",
+      "expected_value": "Valid NUMBER",
+      "fix_recommendation": "Remove non-numeric characters. Current value 'AVENIDA DA REPÚBLICA CASA Nº 14' contains invalid characters"
+    },
+    {
+      "row": 12,
+      "column": "n_addr_seq_id",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "AVENIDA DA REPÚBLICA CASA Nº 14",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'AVENIDA DA...'"
+    },
+    {
+      "row": 12,
+      "column": "v_address_type",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "BAIRRO KAPANGO URBANO - HUAMBO",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'BAIRRO KAP...'"
+    },
+    {
+      "row": 12,
+      "column": "v_phone_number",
+      "error_type": "INVALID_FORMAT",
+      "message": "Invalid phone format",
+      "actual_value": "AO",
+      "expected_value": "Valid phone number",
+      "fix_recommendation": "Remove non-numeric characters or provide valid phone number"
+    },
+    {
+      "row": 13,
+      "column": "n_addr_seq_id",
+      "error_type": "INVALID_DATA_TYPE",
+      "message": "Invalid NUMBER format",
+      "actual_value": "RUA UNIDADE VIZINHANÇA Nº87",
+      "expected_value": "Valid NUMBER",
+      "fix_recommendation": "Remove non-numeric characters. Current value 'RUA UNIDADE VIZINHANÇA Nº87' contains invalid characters"
+    },
+    {
+      "row": 13,
+      "column": "n_addr_seq_id",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "RUA UNIDADE VIZINHANÇA Nº87",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'RUA UNIDAD...'"
+    },
+    {
+      "row": 13,
+      "column": "v_address_type",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "BAIRRO CASSENDA",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'BAIRRO CAS...'"
+    },
+    {
+      "row": 13,
+      "column": "v_phone_number",
+      "error_type": "INVALID_FORMAT",
+      "message": "Invalid phone format",
+      "actual_value": "AO",
+      "expected_value": "Valid phone number",
+      "fix_recommendation": "Remove non-numeric characters or provide valid phone number"
+    },
+    {
+      "row": 14,
+      "column": "n_addr_seq_id",
+      "error_type": "INVALID_DATA_TYPE",
+      "message": "Invalid NUMBER format",
+      "actual_value": "RUA UNIDADE VIZINHANÇA Nº87",
+      "expected_value": "Valid NUMBER",
+      "fix_recommendation": "Remove non-numeric characters. Current value 'RUA UNIDADE VIZINHANÇA Nº87' contains invalid characters"
+    },
+    {
+      "row": 14,
+      "column": "n_addr_seq_id",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "RUA UNIDADE VIZINHANÇA Nº87",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'RUA UNIDAD...'"
+    },
+    {
+      "row": 14,
+      "column": "v_address_type",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "BAIRRO CASSENDA",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'BAIRRO CAS...'"
+    },
+    {
+      "row": 14,
+      "column": "v_phone_number",
+      "error_type": "INVALID_FORMAT",
+      "message": "Invalid phone format",
+      "actual_value": "AO",
+      "expected_value": "Valid phone number",
+      "fix_recommendation": "Remove non-numeric characters or provide valid phone number"
+    },
+    {
+      "row": 15,
+      "column": "n_addr_seq_id",
+      "error_type": "INVALID_DATA_TYPE",
+      "message": "Invalid NUMBER format",
+      "actual_value": "RUA UNIDADE VIZINHANÇA Nº87",
+      "expected_value": "Valid NUMBER",
+      "fix_recommendation": "Remove non-numeric characters. Current value 'RUA UNIDADE VIZINHANÇA Nº87' contains invalid characters"
+    },
+    {
+      "row": 15,
+      "column": "n_addr_seq_id",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "RUA UNIDADE VIZINHANÇA Nº87",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'RUA UNIDAD...'"
+    },
+    {
+      "row": 15,
+      "column": "v_address_type",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "BAIRRO CASSENDA",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'BAIRRO CAS...'"
+    },
+    {
+      "row": 15,
+      "column": "v_phone_number",
+      "error_type": "INVALID_FORMAT",
+      "message": "Invalid phone format",
+      "actual_value": "AO",
+      "expected_value": "Valid phone number",
+      "fix_recommendation": "Remove non-numeric characters or provide valid phone number"
+    },
+    {
+      "row": 16,
+      "column": "n_addr_seq_id",
+      "error_type": "INVALID_DATA_TYPE",
+      "message": "Invalid NUMBER format",
+      "actual_value": "RUA UNIDADE VIZINHANÇA Nº87",
+      "expected_value": "Valid NUMBER",
+      "fix_recommendation": "Remove non-numeric characters. Current value 'RUA UNIDADE VIZINHANÇA Nº87' contains invalid characters"
+    },
+    {
+      "row": 16,
+      "column": "n_addr_seq_id",
+      "error_type": "LENGTH_EXCEEDED",
+      "message": "Length exceeds maximum 10 characters",
+      "actual_value": "RUA UNIDADE VIZINHANÇA Nº87",
+      "expected_value": "Max 10 characters",
+      "fix_recommendation": "Truncate to 10 characters: 'RUA UNIDAD...'"
+    }
+  ],
+  "timestamp": "2025-10-23T13:14:45.006476"
+}
