@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>OFSAA Validation Report<title>OFSAA Validation Report</title>
+    <title>OFSAA Validation Report</title>
     <meta charset="UTF-8">
     <style>
         body {
@@ -12,7 +12,7 @@
             background-color: #f5f5f5;
         }
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background-color: white;
             padding: 30px;
@@ -98,11 +98,23 @@
             background-color: #f8d7da;
             border-color: #dc3545;
         }
+        .recommendation.high {
+            background-color: #f8d7da;
+            border-color: #dc3545;
+        }
         .recommendation.warning {
             background-color: #fff3cd;
             border-color: #ffc107;
         }
+        .recommendation.medium {
+            background-color: #fff3cd;
+            border-color: #ffc107;
+        }
         .recommendation.info {
+            background-color: #d1ecf1;
+            border-color: #17a2b8;
+        }
+        .recommendation.low {
             background-color: #d1ecf1;
             border-color: #17a2b8;
         }
@@ -114,13 +126,19 @@
             font-weight: bold;
             margin-bottom: 5px;
         }
-        .error-sample {
+        .error-group {
             background-color: #f8f9fa;
-            padding: 10px;
-            border-left: 3px solid #dc3545;
-            margin: 10px 0;
-            font-family: monospace;
-            font-size: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #dc3545;
+            border-radius: 4px;
+        }
+        .error-group h4 {
+            margin-top: 0;
+            color: #333;
+        }
+        .error-group p {
+            margin: 8px 0;
         }
         .badge {
             display: inline-block;
@@ -132,11 +150,33 @@
         .badge-danger { background-color: #dc3545; color: white; }
         .badge-warning { background-color: #ffc107; color: black; }
         .badge-info { background-color: #17a2b8; color: white; }
+        .badge-success { background-color: #28a745; color: white; }
         .timestamp {
             color: #6c757d;
             font-size: 14px;
             text-align: right;
             margin-top: 20px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }
+        .stat-card h4 {
+            margin: 0 0 10px 0;
+            color: #555;
+        }
+        .stat-card .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
         }
     </style>
 </head>
@@ -145,65 +185,87 @@
         <h1>🔍 OFSAA FCCM Validation Report</h1>
         
         <div class="timestamp">
-            Generated: 2025-10-23T13:14:45.006476<br>
+            Generated: 2025-10-23T15:09:01.229430<br>
             File: data/input/AccountAddress_20251007_DLY_01.txt<br>
-            Table: ACCT_ADDR
+            Table: ACCOUNTADDRESS
         </div>
         
         <h2>📊 Validation Summary</h2>
         <div class="summary-box">
             <div class="metric">
                 <div class="metric-label">Total Records</div>
-                <div class="metric-value">2,306</div>
+                <div class="metric-value">2,308</div>
             </div>
             <div class="metric success">
                 <div class="metric-label">Valid Records</div>
-                <div class="metric-value">0</div>
+                <div class="metric-value">2,306</div>
             </div>
             <div class="metric warning">
                 <div class="metric-label">Rejected Records</div>
-                <div class="metric-value">2,306</div>
+                <div class="metric-value">2</div>
             </div>
             <div class="metric">
                 <div class="metric-label">Processing Time</div>
-                <div class="metric-value">0.5s</div>
+                <div class="metric-value">0.1s</div>
             </div>
         </div>
         
-        <div class="quality-score quality-poor">
-            Data Quality Score: 0.0%
+        <div class="quality-score quality-excellent">
+            Data Quality Score: 99.9%
+        </div>
+        
+        <h2>📈 Error Analysis</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h4>Total Errors</h4>
+                <div class="value">2</div>
+            </div>
+            <div class="stat-card">
+                <h4>Error Types</h4>
+                <div class="value">1</div>
+            </div>
+            <div class="stat-card">
+                <h4>Affected Columns</h4>
+                <div class="value">1</div>
+            </div>
         </div>
         
         <h2>💡 Recommendations</h2>
         
-            <div class="recommendation critical">
+            <div class="recommendation success">
                 <div class="recommendation-title">
-                    <span class="badge badge-critical">CRITICAL</span> 
-                    Data quality is 0.0% - CRITICAL issues detected
+                    <span class="badge badge-success">SUCCESS</span> 
+                    Excellent data quality (99.91%)
                 </div>
-                <div><strong>Action:</strong> Fix 2306 rejected records before OFSAA load</div>
+                <div><strong>Action:</strong> Ready for OFSAA load</div>
             </div>
             
-            <div class="recommendation medium">
+            <div class="recommendation low">
                 <div class="recommendation-title">
-                    <span class="badge badge-medium">MEDIUM</span> 
-                    3466 length violations
+                    <span class="badge badge-info">LOW</span> 
+                    2 records exceed length limit in 'Country'
                 </div>
-                <div><strong>Action:</strong> Truncate or split long values to meet field length requirements</div>
-            </div>
-            
-            <div class="recommendation info">
-                <div class="recommendation-title">
-                    <span class="badge badge-info">INFO</span> 
-                    Column "n_addr_seq_id" has 4226 errors
-                </div>
-                <div><strong>Action:</strong> Focus on fixing "n_addr_seq_id" first - it has the most issues</div>
+                <div><strong>Action:</strong> Truncate values in column 'Country' to meet length requirements</div>
             </div>
             
         
-        <h2>📈 Error Analysis</h2>
+        <h2>🔴 Grouped Errors (Top 10)</h2>
         
-        <h3>Errors by Type</h3>
+            <div class="error-group">
+                <h4>
+                    <span class="badge badge-danger">LENGTH_EXCEEDED</span> 
+                    Column: Country
+                </h4>
+                <p><strong>Occurrences:</strong> 2</p>
+                <p><strong>Fix:</strong> Truncate to 3 characters: '550...'</p>
+                <p><strong>Sample Rows:</strong> 1545, 2206</p>
+                <p><strong>Sample Values:</strong> '5500', '2540'</p>
+            </div>
+            
+        
+        <h2>📋 Error Distribution</h2>
+        
+        <h3>By Error Type</h3>
         <table>
             <thead>
                 <tr>
@@ -216,32 +278,14 @@
                 
             <tr>
                 <td>LENGTH_EXCEEDED</td>
-                <td>3,466</td>
-                <td>42.3%</td>
-            </tr>
-            
-            <tr>
-                <td>INVALID_DATA_TYPE</td>
-                <td>2,302</td>
-                <td>28.1%</td>
-            </tr>
-            
-            <tr>
-                <td>INVALID_FORMAT</td>
-                <td>2,294</td>
-                <td>28.0%</td>
-            </tr>
-            
-            <tr>
-                <td>VALUE_MISSING</td>
-                <td>135</td>
-                <td>1.6%</td>
+                <td>2</td>
+                <td>100.0%</td>
             </tr>
             
             </tbody>
         </table>
         
-        <h3>Errors by Column</h3>
+        <h3>By Column (Top 10)</h3>
         <table>
             <thead>
                 <tr>
@@ -253,114 +297,13 @@
             <tbody>
                 
             <tr>
-                <td>n_addr_seq_id</td>
-                <td>4,226</td>
-                <td>51.6%</td>
-            </tr>
-            
-            <tr>
-                <td>v_phone_number</td>
-                <td>2,294</td>
-                <td>28.0%</td>
-            </tr>
-            
-            <tr>
-                <td>v_address_type</td>
-                <td>1,664</td>
-                <td>20.3%</td>
-            </tr>
-            
-            <tr>
-                <td>v_country</td>
-                <td>13</td>
-                <td>0.2%</td>
+                <td>Country</td>
+                <td>2</td>
+                <td>100.0%</td>
             </tr>
             
             </tbody>
         </table>
-        
-        <h2>🔴 Sample Errors (Top 10)</h2>
-        
-            <div class="error-sample">
-                <strong>Row 1</strong> - Column: n_addr_seq_id<br>
-                Error: Invalid NUMBER format<br>
-                Actual Value: HUAMBO<br>
-                Expected: Valid NUMBER<br>
-                <strong>Fix:</strong> Remove non-numeric characters. Current value 'HUAMBO' contains invalid characters
-            </div>
-            
-            <div class="error-sample">
-                <strong>Row 1</strong> - Column: v_phone_number<br>
-                Error: Invalid phone format<br>
-                Actual Value: AO<br>
-                Expected: Valid phone number<br>
-                <strong>Fix:</strong> Remove non-numeric characters or provide valid phone number
-            </div>
-            
-            <div class="error-sample">
-                <strong>Row 2</strong> - Column: n_addr_seq_id<br>
-                Error: Invalid NUMBER format<br>
-                Actual Value: HUAMBO<br>
-                Expected: Valid NUMBER<br>
-                <strong>Fix:</strong> Remove non-numeric characters. Current value 'HUAMBO' contains invalid characters
-            </div>
-            
-            <div class="error-sample">
-                <strong>Row 2</strong> - Column: v_phone_number<br>
-                Error: Invalid phone format<br>
-                Actual Value: AO<br>
-                Expected: Valid phone number<br>
-                <strong>Fix:</strong> Remove non-numeric characters or provide valid phone number
-            </div>
-            
-            <div class="error-sample">
-                <strong>Row 3</strong> - Column: n_addr_seq_id<br>
-                Error: Invalid NUMBER format<br>
-                Actual Value: HUAMBO<br>
-                Expected: Valid NUMBER<br>
-                <strong>Fix:</strong> Remove non-numeric characters. Current value 'HUAMBO' contains invalid characters
-            </div>
-            
-            <div class="error-sample">
-                <strong>Row 3</strong> - Column: v_phone_number<br>
-                Error: Invalid phone format<br>
-                Actual Value: AO<br>
-                Expected: Valid phone number<br>
-                <strong>Fix:</strong> Remove non-numeric characters or provide valid phone number
-            </div>
-            
-            <div class="error-sample">
-                <strong>Row 4</strong> - Column: n_addr_seq_id<br>
-                Error: Invalid NUMBER format<br>
-                Actual Value: HUAMBO<br>
-                Expected: Valid NUMBER<br>
-                <strong>Fix:</strong> Remove non-numeric characters. Current value 'HUAMBO' contains invalid characters
-            </div>
-            
-            <div class="error-sample">
-                <strong>Row 4</strong> - Column: v_phone_number<br>
-                Error: Invalid phone format<br>
-                Actual Value: AO<br>
-                Expected: Valid phone number<br>
-                <strong>Fix:</strong> Remove non-numeric characters or provide valid phone number
-            </div>
-            
-            <div class="error-sample">
-                <strong>Row 5</strong> - Column: n_addr_seq_id<br>
-                Error: Invalid NUMBER format<br>
-                Actual Value: HUAMBO<br>
-                Expected: Valid NUMBER<br>
-                <strong>Fix:</strong> Remove non-numeric characters. Current value 'HUAMBO' contains invalid characters
-            </div>
-            
-            <div class="error-sample">
-                <strong>Row 5</strong> - Column: v_phone_number<br>
-                Error: Invalid phone format<br>
-                Actual Value: AO<br>
-                Expected: Valid phone number<br>
-                <strong>Fix:</strong> Remove non-numeric characters or provide valid phone number
-            </div>
-            
         
         <h2>📋 File Information</h2>
         <table>
@@ -374,7 +317,7 @@
             </tr>
             <tr>
                 <td>Table Name</td>
-                <td>ACCT_ADDR</td>
+                <td>ACCOUNTADDRESS</td>
             </tr>
             <tr>
                 <td>Encoding</td>
@@ -382,18 +325,18 @@
             </tr>
             <tr>
                 <td>Expected Columns</td>
-                <td>14</td>
+                <td>19</td>
             </tr>
             <tr>
                 <td>Actual Columns</td>
-                <td>14</td>
+                <td>19</td>
             </tr>
         </table>
         
         <div class="timestamp">
             <strong>Next Steps:</strong><br>
-            1. Review rejected records in rejected_records.csv<br>
-            2. Follow fix instructions in fix_instructions.txt<br>
+            1. Review rejected_records.csv for all rejected records<br>
+            2. Follow fix_instructions.txt for grouped error fixes<br>
             3. Revalidate after corrections<br>
             4. Load to OFSAA when quality score is above 95%
         </div>

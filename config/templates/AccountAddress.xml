@@ -1,20 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Table name="ACCT_ADDR" description="Account Address Dimension">
-    <FileFormat delimiter="~" encoding="UTF-8" dateFormat="YYYYMMDD"/>
-    <Columns>
-        <Column position="0" name="v_account_number" dataType="VARCHAR2" length="50" nullable="false" description="Account Number"/>
-        <Column position="1" name="n_addr_seq_id" dataType="NUMBER" length="10" nullable="false" description="Address Sequence ID"/>
-        <Column position="2" name="v_address_type" dataType="VARCHAR2" length="10" nullable="false" description="Address Type"/>
-        <Column position="3" name="v_address_line1" dataType="VARCHAR2" length="255" nullable="true" description="Address Line 1"/>
-        <Column position="4" name="v_address_line2" dataType="VARCHAR2" length="255" nullable="true" description="Address Line 2"/>
-        <Column position="5" name="v_address_line3" dataType="VARCHAR2" length="255" nullable="true" description="Address Line 3"/>
-        <Column position="6" name="v_city" dataType="VARCHAR2" length="100" nullable="true" description="City"/>
-        <Column position="7" name="v_state" dataType="VARCHAR2" length="100" nullable="true" description="State/Province"/>
-        <Column position="8" name="v_postal_code" dataType="VARCHAR2" length="20" nullable="true" description="Postal Code"/>
-        <Column position="9" name="v_country" dataType="VARCHAR2" length="10" nullable="false" description="Country Code"/>
-        <Column position="10" name="v_phone_number" dataType="VARCHAR2" length="50" nullable="true" description="Phone Number"/>
-        <Column position="11" name="v_email" dataType="VARCHAR2" length="100" nullable="true" description="Email Address"/>
-        <Column position="12" name="d_effective_from_date" dataType="DATE" length="8" nullable="true" description="Effective From Date"/>
-        <Column position="13" name="d_effective_to_date" dataType="DATE" length="8" nullable="true" description="Effective To Date"/>
-    </Columns>
-</Table>
+<DataMap xmlns:xsd="http://www.w3.org/2001/XMLSchema-instance" xsd:noNamespaceSchemaLocation="DataMap.xsd" name="AccountAddress" table="ACCT_ADDR" businessKey="AccountIdentifier,AddressRecordNumber" loadOperation="Overwrite" sourceTable="STG_ACCOUNT_ADDRESS" entityKey="AccountIdentifier">
+    <Field name="AccountIdentifier" type="STRING" length="50" column="ACCT_INTRL_ID" DIS="true" requirement="M" sourceColumn="V_ACCOUNT_NUMBER"/>
+    <Field name="AddressRecordNumber" type="STRING" length="20" column="ADDR_SEQ_NB" DIS="true" requirement="M" sourceColumn="N_SEQUENCE_NUMBER"/>
+    <Field name="AddressPurpose" type="STRING" length="20" column="ADDR_USAGE_CD" DIS="true" requirement="O" domain="M|B|L|A|O|P|D|H|X|V" sourceColumn="V_ADDRESS_PURPOSE_TYPE_IND"/>
+    <Field name="StreetLine1" type="STRING" length="255" column="ADDR_STRT_LINE1_TX" DIS="true" requirement="M" sourceColumn="V_ADDRESS_LINE1" uppercase="true"/>
+    <Field name="StreetLine2" type="STRING" length="255" column="ADDR_STRT_LINE2_TX" DIS="true" requirement="O" sourceColumn="V_ADDRESS_LINE2" uppercase="true"/>
+    <Field name="StreetLine3" type="STRING" length="255" column="ADDR_STRT_LINE3_TX" DIS="true" requirement="O" sourceColumn="V_ADDRESS_LINE3" uppercase="true"/>
+    <Field name="StreetLine4" type="STRING" length="255" column="ADDR_STRT_LINE4_TX" DIS="true" requirement="O" sourceColumn="V_ADDRESS_LINE4" uppercase="true"/>
+    <Field name="StreetLine5" type="STRING" length="255" column="ADDR_STRT_LINE5_TX" DIS="true" requirement="O" sourceColumn="V_ADDRESS_LINE5" uppercase="true"/>
+    <Field name="StreetLine6" type="STRING" length="255" column="ADDR_STRT_LINE6_TX" DIS="true" requirement="O" sourceColumn="V_ADDRESS_LINE6" uppercase="true"/>
+    <Field name="City" type="STRING" length="50" column="ADDR_CITY_NM" DIS="true" requirement="O" sourceColumn="V_CITY" uppercase="true"/>
+    <Field name="State" type="STRING" length="255" column="ADDR_STATE_CD" DIS="true" requirement="O" sourceColumn="V_STATE" uppercase="true"/>
+    <Field name="PostalCode" type="STRING" length="20" column="ADDR_POSTL_CD" DIS="true" requirement="O" sourceColumn="V_POSTAL_CODE"/>
+    <Field name="Country" type="STRING" length="3" column="ADDR_CNTRY_CD" DIS="true" requirement="M" sourceColumn="V_ISO_COUNTRY_CODE"/>
+    <Field name="Region" type="STRING" length="40" column="ADDR_RGN_NM" DIS="true" requirement="O" sourceColumn="V_REGION" uppercase="true"/>
+    <Field name="SourceSystem" type="STRING" length="3" column="SRC_SYS_CD" DIS="true" requirement="O" sourceColumn="V_DATA_ORIGIN" sourceCodeset="FSDF_SRC_SYS_CD"/>
+    <Field name="MailHandlingInstruction" type="STRING" length="3" column="MAIL_HNDLNG_INSTR" DIS="true" requirement="O" domain="H|I" sourceColumn="V_MAIL_HANDLING_INSTRUCTION"/>
+    <Field name="ProcessingBatch" type="STRING" column="PRCSNG_BATCH_NM" derivation="PROCESSING_BATCH"/>
+    <Field name="MantasAccountAddressIdentifier" type="INTEGER" column="ACCT_ADDR_SEQ_ID" derivation="SEQUENCE_ID"/>
+    <Field name="SubmissionDate" type="DATE" column="DATA_DUMP_DT" derivation="PROCESSING_DATE"/>
+</DataMap>

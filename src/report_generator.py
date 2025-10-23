@@ -1,4 +1,4 @@
-# src/report_generator.py
+# src/report_generator.py - COMPLETE FIXED VERSION WITH CORRECT INDENTATION
 
 import json
 from typing import Dict, List
@@ -7,7 +7,7 @@ from pathlib import Path
 import pandas as pd
 
 class ReportGenerator:
-    """Generate comprehensive validation reports"""
+    """Generate comprehensive validation reports with grouped errors"""
     
     def generate_report(self,
                        valid_df: pd.DataFrame,
@@ -20,12 +20,16 @@ class ReportGenerator:
         
         Path(output_dir).mkdir(parents=True, exist_ok=True)
         
+        # Group errors for better reporting
+        error_analysis = self._analyze_errors(errors)
+        recommendations = self._generate_recommendations(summary, errors, rejected_df)
+        
         report_data = {
             'summary': summary,
             'parse_metadata': parse_metadata,
-            'error_analysis': self._analyze_errors(errors),
-            'recommendations': self._generate_recommendations(summary, errors, rejected_df),
-            'top_errors': [e.to_dict() for e in errors[:50]],  # Top 50 errors
+            'error_analysis': error_analysis,
+            'recommendations': recommendations,
+            'grouped_errors': self._group_errors_for_display(errors),
             'timestamp': datetime.now().isoformat()
         }
         
@@ -74,17 +78,53 @@ class ReportGenerator:
         
         return {
             'total_errors': len(errors),
+            'unique_error_types': len(error_by_type),
+            'affected_columns': len(error_by_column),
             'error_by_type': dict(sorted(error_by_type.items(), key=lambda x: x[1], reverse=True)),
             'error_by_column': dict(sorted(error_by_column.items(), key=lambda x: x[1], reverse=True)),
             'worst_rows': [{'row': row, 'error_count': count} for row, count in worst_rows]
         }
     
+    def _group_errors_for_display(self, errors: List) -> List[Dict]:
+        """Group errors by type and column for concise display"""
+        
+        error_groups = {}
+        for error in errors:
+            key = (error.error_type, error.column_name)
+            if key not in error_groups:
+                error_groups[key] = {
+                    'error_type': error.error_type,
+                    'column': error.column_name,
+                    'count': 0,
+                    'fix_recommendation': error.fix_recommendation,
+                    'sample_rows': [],
+                    'sample_values': []
+                }
+            
+            group = error_groups[key]
+            group['count'] += 1
+            
+            # Keep first 5 sample rows
+            if len(group['sample_rows']) < 5:
+                group['sample_rows'].append(error.row_number)
+            
+            # Keep first 3 unique sample values
+            value_str = str(error.actual_value)[:50]
+            if value_str not in group['sample_values'] and len(group['sample_values']) < 3:
+                group['sample_values'].append(value_str)
+        
+        # Convert to list and sort by count
+        grouped_list = list(error_groups.values())
+        grouped_list.sort(key=lambda x: x['count'], reverse=True)
+        
+        return grouped_list
+    
     def _generate_recommendations(self, summary: Dict, errors: List, rejected_df: pd.DataFrame) -> List[str]:
-        """Generate actionable recommendations"""
+        """Generate actionable recommendations - CONCISE VERSION"""
         
         recommendations = []
         
-        # Data quality assessment
+        # 1. Overall Data Quality Assessment
         quality = summary['data_quality_score']
         if quality < 70:
             recommendations.append({
@@ -115,66 +155,74 @@ class ReportGenerator:
                 'priority': 0
             })
         
-        # Error-specific recommendations
-        if errors:
-            # Most common error type
-            error_types = {}
-            for error in errors:
-                error_types[error.error_type] = error_types.get(error.error_type, 0) + 1
+        if not errors:
+            return recommendations
+        
+        # 2. Group Errors by Type and Column
+        error_groups = {}
+        for error in errors:
+            key = (error.error_type, error.column_name)
+            if key not in error_groups:
+                error_groups[key] = {
+                    'count': 0,
+                    'sample_fix': error.fix_recommendation,
+                    'error_type': error.error_type,
+                    'column': error.column_name
+                }
+            error_groups[key]['count'] += 1
+        
+        # 3. Sort by frequency (most common first)
+        sorted_groups = sorted(error_groups.items(), key=lambda x: x[1]['count'], reverse=True)
+        
+        # 4. Generate Top 5 Recommendations Only
+        for idx, ((error_type, column), info) in enumerate(sorted_groups[:5], 1):
             
-            top_error = max(error_types.items(), key=lambda x: x[1])
-            error_type, count = top_error
+            severity = 'HIGH' if info['count'] > 100 else 'MEDIUM' if info['count'] > 10 else 'LOW'
             
+            # Create concise message
             if error_type == 'VALUE_MISSING':
-                recommendations.append({
-                    'severity': 'HIGH',
-                    'message': f'{count} mandatory field violations',
-                    'action': 'Populate all required fields with valid data',
-                    'priority': 1
-                })
+                message = f"{info['count']} records missing mandatory field '{column}'"
+                action = info['sample_fix']
             elif error_type == 'INVALID_DATA_TYPE':
-                recommendations.append({
-                    'severity': 'HIGH',
-                    'message': f'{count} data type mismatches',
-                    'action': 'Verify data formats match OFSAA requirements (dates as YYYYMMDD, numbers without text)',
-                    'priority': 1
-                })
+                message = f"{info['count']} records have invalid data type in '{column}'"
+                action = info['sample_fix']
             elif error_type == 'LENGTH_EXCEEDED':
-                recommendations.append({
-                    'severity': 'MEDIUM',
-                    'message': f'{count} length violations',
-                    'action': 'Truncate or split long values to meet field length requirements',
-                    'priority': 2
-                })
-            
-            # Column-specific recommendations
-            column_errors = {}
-            for error in errors:
-                column_errors[error.column_name] = column_errors.get(error.column_name, 0) + 1
-            
-            top_column = max(column_errors.items(), key=lambda x: x[1])
-            col_name, count = top_column
+                message = f"{info['count']} records exceed length limit in '{column}'"
+                action = f"Truncate values in column '{column}' to meet length requirements"
+            elif error_type == 'INVALID_FORMAT':
+                message = f"{info['count']} records have invalid format in '{column}'"
+                action = info['sample_fix']
+            else:
+                message = f"{info['count']} errors in '{column}'"
+                action = "Review and fix data formatting"
             
             recommendations.append({
-                'severity': 'INFO',
-                'message': f'Column "{col_name}" has {count} errors',
-                'action': f'Focus on fixing "{col_name}" first - it has the most issues',
-                'priority': 2
+                'severity': severity,
+                'message': message,
+                'action': action,
+                'priority': idx + 1
             })
         
-        # Sort by priority
-        recommendations.sort(key=lambda x: x['priority'])
+        # 5. Summary if more errors exist
+        if len(sorted_groups) > 5:
+            remaining = len(sorted_groups) - 5
+            recommendations.append({
+                'severity': 'INFO',
+                'message': f'{remaining} additional error types found',
+                'action': f'Review rejected_records.csv for complete details',
+                'priority': 10
+            })
         
         return recommendations
     
     def _generate_html_report(self, report_data: Dict, output_path: str):
-        """Generate HTML report"""
+        """Generate HTML report with grouped errors"""
         
         html = f"""
 <!DOCTYPE html>
 <html>
 <head>
-    <title>OFSAA Validation Report<title>OFSAA Validation Report</title>
+    <title>OFSAA Validation Report</title>
     <meta charset="UTF-8">
     <style>
         body {{
@@ -184,7 +232,7 @@ class ReportGenerator:
             background-color: #f5f5f5;
         }}
         .container {{
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background-color: white;
             padding: 30px;
@@ -270,11 +318,23 @@ class ReportGenerator:
             background-color: #f8d7da;
             border-color: #dc3545;
         }}
+        .recommendation.high {{
+            background-color: #f8d7da;
+            border-color: #dc3545;
+        }}
         .recommendation.warning {{
             background-color: #fff3cd;
             border-color: #ffc107;
         }}
+        .recommendation.medium {{
+            background-color: #fff3cd;
+            border-color: #ffc107;
+        }}
         .recommendation.info {{
+            background-color: #d1ecf1;
+            border-color: #17a2b8;
+        }}
+        .recommendation.low {{
             background-color: #d1ecf1;
             border-color: #17a2b8;
         }}
@@ -286,13 +346,19 @@ class ReportGenerator:
             font-weight: bold;
             margin-bottom: 5px;
         }}
-        .error-sample {{
+        .error-group {{
             background-color: #f8f9fa;
-            padding: 10px;
-            border-left: 3px solid #dc3545;
-            margin: 10px 0;
-            font-family: monospace;
-            font-size: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #dc3545;
+            border-radius: 4px;
+        }}
+        .error-group h4 {{
+            margin-top: 0;
+            color: #333;
+        }}
+        .error-group p {{
+            margin: 8px 0;
         }}
         .badge {{
             display: inline-block;
@@ -304,11 +370,33 @@ class ReportGenerator:
         .badge-danger {{ background-color: #dc3545; color: white; }}
         .badge-warning {{ background-color: #ffc107; color: black; }}
         .badge-info {{ background-color: #17a2b8; color: white; }}
+        .badge-success {{ background-color: #28a745; color: white; }}
         .timestamp {{
             color: #6c757d;
             font-size: 14px;
             text-align: right;
             margin-top: 20px;
+        }}
+        .stats-grid {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }}
+        .stat-card {{
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #3498db;
+        }}
+        .stat-card h4 {{
+            margin: 0 0 10px 0;
+            color: #555;
+        }}
+        .stat-card .value {{
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
         }}
     </style>
 </head>
@@ -346,12 +434,31 @@ class ReportGenerator:
             Data Quality Score: {report_data['summary']['data_quality_score']:.1f}%
         </div>
         
+        <h2>📈 Error Analysis</h2>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h4>Total Errors</h4>
+                <div class="value">{report_data['error_analysis']['total_errors']:,}</div>
+            </div>
+            <div class="stat-card">
+                <h4>Error Types</h4>
+                <div class="value">{report_data['error_analysis']['unique_error_types']}</div>
+            </div>
+            <div class="stat-card">
+                <h4>Affected Columns</h4>
+                <div class="value">{report_data['error_analysis']['affected_columns']}</div>
+            </div>
+        </div>
+        
         <h2>💡 Recommendations</h2>
         {self._format_recommendations_html(report_data['recommendations'])}
         
-        <h2>📈 Error Analysis</h2>
+        <h2>🔴 Grouped Errors (Top 10)</h2>
+        {self._format_grouped_errors_html(report_data.get('grouped_errors', [])[:10])}
         
-        <h3>Errors by Type</h3>
+        <h2>📋 Error Distribution</h2>
+        
+        <h3>By Error Type</h3>
         <table>
             <thead>
                 <tr>
@@ -366,7 +473,7 @@ class ReportGenerator:
             </tbody>
         </table>
         
-        <h3>Errors by Column</h3>
+        <h3>By Column (Top 10)</h3>
         <table>
             <thead>
                 <tr>
@@ -376,13 +483,10 @@ class ReportGenerator:
                 </tr>
             </thead>
             <tbody>
-                {self._format_error_table(report_data['error_analysis']['error_by_column'], 
+                {self._format_error_table(dict(list(report_data['error_analysis']['error_by_column'].items())[:10]), 
                                           report_data['error_analysis']['total_errors'])}
             </tbody>
         </table>
-        
-        <h2>🔴 Sample Errors (Top 10)</h2>
-        {self._format_sample_errors(report_data['top_errors'][:10])}
         
         <h2>📋 File Information</h2>
         <table>
@@ -414,8 +518,8 @@ class ReportGenerator:
         
         <div class="timestamp">
             <strong>Next Steps:</strong><br>
-            1. Review rejected records in rejected_records.csv<br>
-            2. Follow fix instructions in fix_instructions.txt<br>
+            1. Review rejected_records.csv for all rejected records<br>
+            2. Follow fix_instructions.txt for grouped error fixes<br>
             3. Revalidate after corrections<br>
             4. Load to OFSAA when quality score is above 95%
         </div>
@@ -446,7 +550,7 @@ class ReportGenerator:
             html += f"""
             <div class="recommendation {severity_class}">
                 <div class="recommendation-title">
-                    <span class="badge badge-{severity_class}">{rec['severity']}</span> 
+                    <span class="badge badge-{self._get_badge_class(severity_class)}">{rec['severity']}</span> 
                     {rec['message']}
                 </div>
                 <div><strong>Action:</strong> {rec['action']}</div>
@@ -454,10 +558,50 @@ class ReportGenerator:
             """
         return html
     
+    def _get_badge_class(self, severity: str) -> str:
+        """Get badge class for severity"""
+        mapping = {
+            'critical': 'danger',
+            'high': 'danger',
+            'warning': 'warning',
+            'medium': 'warning',
+            'info': 'info',
+            'low': 'info',
+            'success': 'success'
+        }
+        return mapping.get(severity.lower(), 'info')
+    
+    def _format_grouped_errors_html(self, grouped_errors: List[Dict]) -> str:
+        """Format grouped errors as HTML"""
+        html = ""
+        for group in grouped_errors:
+            # Format sample values
+            sample_values_html = ""
+            if group['sample_values']:
+                sample_values_str = ", ".join([f"'{v}'" for v in group['sample_values']])
+                sample_values_html = f"<p><strong>Sample Values:</strong> {sample_values_str}</p>"
+            
+            # Format sample rows
+            sample_rows_str = ', '.join(map(str, group['sample_rows']))
+            
+            html += f"""
+            <div class="error-group">
+                <h4>
+                    <span class="badge badge-danger">{group['error_type']}</span> 
+                    Column: {group['column']}
+                </h4>
+                <p><strong>Occurrences:</strong> {group['count']:,}</p>
+                <p><strong>Fix:</strong> {group['fix_recommendation']}</p>
+                <p><strong>Sample Rows:</strong> {sample_rows_str}</p>
+                {sample_values_html}
+            </div>
+            """
+        return html
+    
     def _format_error_table(self, error_dict: Dict, total: int) -> str:
         """Format error dictionary as HTML table rows"""
         html = ""
-        for key, count in list(error_dict.items())[:10]:  # Top 10
+        for key, count in list(error_dict.items()):
             percentage = (count / total * 100) if total > 0 else 0
             html += f"""
             <tr>
@@ -465,21 +609,6 @@ class ReportGenerator:
                 <td>{count:,}</td>
                 <td>{percentage:.1f}%</td>
             </tr>
-            """
-        return html
-    
-    def _format_sample_errors(self, errors: List[Dict]) -> str:
-        """Format sample errors as HTML"""
-        html = ""
-        for error in errors:
-            html += f"""
-            <div class="error-sample">
-                <strong>Row {error['row']}</strong> - Column: {error['column']}<br>
-                Error: {error['message']}<br>
-                Actual Value: {error['actual_value']}<br>
-                Expected: {error['expected_value']}<br>
-                <strong>Fix:</strong> {error['fix_recommendation']}
-            </div>
             """
         return html
     
@@ -492,22 +621,24 @@ class ReportGenerator:
             summary_df = pd.DataFrame([summary])
             summary_df.to_excel(writer, sheet_name='Summary', index=False)
             
-            # Sheet 2: Valid Records
+            # Sheet 2: Valid Records (first 10000 rows)
             if len(valid_df) > 0:
-                valid_df.to_excel(writer, sheet_name='Valid Records', index=False)
+                valid_df.head(10000).to_excel(writer, sheet_name='Valid Records', index=False)
             
-            # Sheet 3: Rejected Records
+            # Sheet 3: Rejected Records (first 10000 rows)
             if len(rejected_df) > 0:
-                rejected_df.to_excel(writer, sheet_name='Rejected Records', index=False)
+                rejected_df.head(10000).to_excel(writer, sheet_name='Rejected Records', index=False)
             
-            # Sheet 4: All Errors
+            # Sheet 4: Grouped Errors
             if errors:
-                errors_df = pd.DataFrame([e.to_dict() for e in errors])
-                errors_df.to_excel(writer, sheet_name='All Errors', index=False)
+                grouped_errors = self._group_errors_for_display(errors)
+                grouped_df = pd.DataFrame(grouped_errors)
+                grouped_df.to_excel(writer, sheet_name='Grouped Errors', index=False)
             
             # Sheet 5: Error Analysis
             error_analysis = self._create_error_analysis_df(errors)
-            error_analysis.to_excel(writer, sheet_name='Error Analysis', index=False)
+            if not error_analysis.empty:
+                error_analysis.to_excel(writer, sheet_name='Error Analysis', index=False)
     
     def _create_error_analysis_df(self, errors: List) -> pd.DataFrame:
         """Create error analysis dataframe"""
@@ -545,59 +676,69 @@ class ReportGenerator:
         return pd.DataFrame(analysis)
     
     def _generate_fix_instructions(self, errors: List, output_path: str):
-        """Generate fix instructions text file"""
+        """Generate CONCISE fix instructions"""
         
-        # Group errors by type
-        errors_by_type = {}
+        # Group errors by type and column
+        error_groups = {}
         for error in errors:
-            if error.error_type not in errors_by_type:
-                errors_by_type[error.error_type] = []
-            errors_by_type[error.error_type].append(error)
+            key = (error.error_type, error.column_name)
+            if key not in error_groups:
+                error_groups[key] = {
+                    'errors': [],
+                    'fix': error.fix_recommendation
+                }
+            error_groups[key]['errors'].append(error)
         
         with open(output_path, 'w', encoding='utf-8') as f:
-            f.write("="*80 + "\n")
+            f.write("=" * 80 + "\n")
             f.write("OFSAA DATA VALIDATION - FIX INSTRUCTIONS\n")
-            f.write("="*80 + "\n\n")
+            f.write("=" * 80 + "\n\n")
             
-            f.write(f"Total Errors Found: {len(errors)}\n")
+            f.write(f"Total Errors Found: {len(errors):,}\n")
+            f.write(f"Total Error Groups: {len(error_groups)}\n")
             f.write(f"Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n")
             
-            for error_type, type_errors in errors_by_type.items():
-                f.write("\n" + "="*80 + "\n")
-                f.write(f"ERROR TYPE: {error_type} ({len(type_errors)} occurrences)\n")
-                f.write("="*80 + "\n\n")
-                
-                # Group by column within error type
-                by_column = {}
-                for error in type_errors:
-                    if error.column_name not in by_column:
-                        by_column[error.column_name] = []
-                    by_column[error.column_name].append(error)
-                
-                for column, col_errors in by_column.items():
-                    f.write(f"\nColumn: {column} ({len(col_errors)} errors)\n")
-                    f.write("-" * 80 + "\n")
-                    
-                    # Get unique fix recommendations
-                    unique_fixes = set(e.fix_recommendation for e in col_errors if e.fix_recommendation)
-                    if unique_fixes:
-                        f.write("Fix Recommendation:\n")
-                        for fix in unique_fixes:
-                            f.write(f"  • {fix}\n")
-                    
-                    f.write("\nAffected Rows (first 20):\n")
-                    for error in col_errors[:20]:
-                        f.write(f"  Row {error.row_number}: '{error.actual_value}' -> {error.fix_recommendation}\n")
-                    
-                    if len(col_errors) > 20:
-                        f.write(f"  ... and {len(col_errors) - 20} more rows\n")
-                    f.write("\n")
+            f.write("=" * 80 + "\n")
+            f.write("SUMMARY OF ISSUES (Grouped by Error Type and Column)\n")
+            f.write("=" * 80 + "\n\n")
             
-            f.write("\n" + "="*80 + "\n")
-            f.write("SUMMARY OF ACTIONS NEEDED\n")
-            f.write("="*80 + "\n\n")
+            # Sort by frequency
+            sorted_groups = sorted(error_groups.items(), key=lambda x: len(x[1]['errors']), reverse=True)
             
-            f.write("1. Review rejected_records.csv for all rejected records\n")
-            f.write("2. Apply fixes based on recommendations above\n")
-            f.write("3. Revalidate corrected file\n")
-            f.write("4. Load to OFSAA when quality score reaches 95%+\n\n")
+            for idx, ((error_type, column), info) in enumerate(sorted_groups, 1):
+                f.write(f"\n{idx}. {error_type} - Column: {column}\n")
+                f.write("-" * 80 + "\n")
+                f.write(f"   Occurrences: {len(info['errors']):,}\n")
+                f.write(f"   Fix: {info['fix']}\n")
+                
+                # Show first 10 affected rows
+                f.write("   Affected Rows (first 10): ")
+                row_numbers = [str(e.row_number) for e in info['errors'][:10]]
+                f.write(", ".join(row_numbers))
+                if len(info['errors']) > 10:
+                    f.write(f" ... and {len(info['errors']) - 10:,} more")
+                f.write("\n")
+                
+                # Show sample values (first 3 unique)
+                sample_values = list(set([str(e.actual_value)[:50] for e in info['errors']]))[:3]
+                if sample_values:
+                    # Format sample values without nested f-strings
+                    formatted_values = ", ".join([f"'{v}'" for v in sample_values])
+                    f.write(f"   Sample Values: {formatted_values}\n")
+            
+            f.write("\n\n" + "=" * 80 + "\n")
+            f.write("QUICK FIX GUIDE (Top 5 Issues)\n")
+            f.write("=" * 80 + "\n\n")
+            
+            # Quick action items
+            f.write("PRIORITY ACTIONS:\n\n")
+            
+            for idx, ((error_type, column), info) in enumerate(sorted_groups[:5], 1):
+                f.write(f"{idx}. Fix {len(info['errors']):,} occurrences of {error_type} in column '{column}'\n")
+                f.write(f"   → {info['fix']}\n\n")
+            
+            f.write("\n" + "=" * 80 + "\n")
+            f.write("DETAILED ERROR LIST\n")
+            f.write("=" * 80 + "\n")
+            f.write("See 'rejected_records.csv' for complete list with all row numbers and values\n")
+            f.write("=" * 80 + "\n")
