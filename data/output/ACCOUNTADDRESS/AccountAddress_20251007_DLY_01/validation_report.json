@@ -1,0 +1,71 @@
+{
+  "summary": {
+    "total_records": 2308,
+    "valid_records": 2306,
+    "rejected_records": 2,
+    "data_quality_score": 99.91,
+    "processing_time_seconds": 0.11,
+    "total_errors": 2
+  },
+  "parse_metadata": {
+    "file_path": "data/input/AccountAddress_20251007_DLY_01.txt",
+    "table_name": "ACCOUNTADDRESS",
+    "detected_encoding": "utf-8",
+    "encoding_used": "utf-8",
+    "expected_columns": 19,
+    "actual_columns": 19,
+    "total_records": 2308
+  },
+  "error_analysis": {
+    "total_errors": 2,
+    "unique_error_types": 1,
+    "affected_columns": 1,
+    "error_by_type": {
+      "LENGTH_EXCEEDED": 2
+    },
+    "error_by_column": {
+      "Country": 2
+    },
+    "worst_rows": [
+      {
+        "row": 1545,
+        "error_count": 1
+      },
+      {
+        "row": 2206,
+        "error_count": 1
+      }
+    ]
+  },
+  "recommendations": [
+    {
+      "severity": "SUCCESS",
+      "message": "Excellent data quality (99.91%)",
+      "action": "Ready for OFSAA load",
+      "priority": 0
+    },
+    {
+      "severity": "LOW",
+      "message": "2 records exceed length limit in 'Country'",
+      "action": "Truncate values in column 'Country' to meet length requirements",
+      "priority": 2
+    }
+  ],
+  "grouped_errors": [
+    {
+      "error_type": "LENGTH_EXCEEDED",
+      "column": "Country",
+      "count": 2,
+      "fix_recommendation": "Truncate to 3 characters: '550...'",
+      "sample_rows": [
+        1545,
+        2206
+      ],
+      "sample_values": [
+        "5500",
+        "2540"
+      ]
+    }
+  ],
+  "timestamp": "2025-10-23T15:30:28.877008"
+}

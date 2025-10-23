@@ -1,0 +1,3 @@
+AccountIdentifier,AddressRecordNumber,AddressPurpose,StreetLine1,StreetLine2,StreetLine3,StreetLine4,StreetLine5,StreetLine6,City,State,PostalCode,Country,Region,SourceSystem,MailHandlingInstruction,ProcessingBatch,MantasAccountAddressIdentifier,SubmissionDate,rejection_reasons,error_count
+11812851830001,1,H,CASA S/,º ZONA 20,BAIRRO GOLF II KILAMBA KIAXI,,,,,,,5500,AO,,,,,,Country: Length exceeds maximum 3 characters,1
+24205942930001,1,H,RUA S/ Nº CASA S/ Nº,,BAIRRO BENFICA MENONGUE,,,,,,,2540,AO,,,,,,Country: Length exceeds maximum 3 characters,1

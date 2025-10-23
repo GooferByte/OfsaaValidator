@@ -1,9 +1,10 @@
-# src/orchestrator.py - COMPLETE WORKING VERSION
+# src/orchestrator.py - COMPLETE WITH BOTH FIXES
 
 from typing import Dict, Tuple
 from datetime import datetime
 from pathlib import Path
 import pandas as pd
+import re  # ADD THIS IMPORT
 
 from src.xml_parser import XMLTemplateParser
 from src.file_parser import FileParser
@@ -84,8 +85,9 @@ class ValidationOrchestrator:
         # Create summary
         summary = self._create_summary(len(df), len(valid_df), len(rejected_df), errors, start_time)
         
-        # Save outputs
-        output_dir = f"data/output/{Path(file_path).stem}"
+        # FIXED: Create output directory with table name and filename
+        filename_stem = Path(file_path).stem
+        output_dir = f"data/output/{table_name}/{filename_stem}"
         output_paths = self._save_outputs(valid_df, rejected_df, output_dir)
         
         # Generate reports
@@ -97,61 +99,107 @@ class ValidationOrchestrator:
         # Print summary
         self._print_summary(summary)
         
+        # Print output location
+        print(f"📁 Output Location: {output_dir}/\n")
+        
         return {
             'success': True,
             'summary': summary,
             'output_paths': output_paths,
+            'output_dir': output_dir,
             'errors_count': len(errors)
         }
     
     def _detect_table_name(self, file_path: str) -> str:
-        """Auto-detect table name from filename"""
+        """Auto-detect table name from filename with better matching"""
         
         filename = Path(file_path).stem.upper()
         
-        # Direct match
+        # Remove common suffixes and date patterns
+        clean_filename = filename
+        clean_filename = re.sub(r'_?\d{8}', '', clean_filename)  # Remove YYYYMMDD
+        clean_filename = re.sub(r'_?(DLY|MLY|DAILY|MONTHLY|WEEKLY)_?\d*', '', clean_filename, flags=re.IGNORECASE)
+        clean_filename = clean_filename.strip('_')
+        
+        print(f"  Cleaned filename: {clean_filename}")
+        
+        # First: Try EXACT match with table names
         for table_name in self.table_definitions.keys():
-            if table_name in filename:
+            if clean_filename == table_name:
                 return table_name
         
-        # Pattern matching
-        patterns = {
-            'ACCOUNT': 'DIM_ACCOUNT',
-            'CUSTOMER': 'DIM_CUSTOMER',
-            'BRANCH': 'DIM_BRANCH',
-            'ADDRESS': 'ACCT_ADDR',
-            'BALANCE': 'FCT_ACCOUNT_BALANCE'
+        # Second: Try exact match with common variations
+        table_mappings = {
+            'ACCOUNTADDRESS': 'ACCT_ADDR',
+            'ACCTADDR': 'ACCT_ADDR',
+            'DIMACCOUNT': 'DIM_ACCOUNT',
+            'DIMCUSTOMER': 'DIM_CUSTOMER',
+            'DIMBRANCH': 'DIM_BRANCH',
+            'DIMPRODUCT': 'DIM_PRODUCT',
+            'FCTACCOUNTBALANCE': 'FCT_ACCOUNT_BALANCE',
+            'FCTBALANCE': 'FCT_ACCOUNT_BALANCE'
         }
         
-        for pattern, table in patterns.items():
-            if pattern in filename and table in self.table_definitions:
-                return table
+        if clean_filename in table_mappings:
+            target_table = table_mappings[clean_filename]
+            if target_table in self.table_definitions:
+                return target_table
+        
+        # Third: Try longest match (prefer ACCOUNTADDRESS over ACCOUNT)
+        sorted_tables = sorted(self.table_definitions.keys(), key=len, reverse=True)
+        
+        for table_name in sorted_tables:
+            if table_name in clean_filename:
+                return table_name
+            if clean_filename in table_name:
+                return table_name
+        
+        # Fourth: Try fuzzy matching with pattern keywords
+        patterns = {
+            'ADDRESS': ['ACCT_ADDR', 'DIM_ADDRESS'],
+            'ACCOUNT': ['DIM_ACCOUNT', 'ACCT_ADDR'],
+            'CUSTOMER': ['DIM_CUSTOMER'],
+            'BRANCH': ['DIM_BRANCH'],
+            'BALANCE': ['FCT_ACCOUNT_BALANCE'],
+            'TRANSACTION': ['FCT_TRANSACTIONS'],
+            'PRODUCT': ['DIM_PRODUCT']
+        }
+        
+        for pattern, possible_tables in patterns.items():
+            if pattern in clean_filename:
+                for table in possible_tables:
+                    if table in self.table_definitions:
+                        return table
         
         # Return first table if only one exists
         if len(self.table_definitions) == 1:
             return list(self.table_definitions.keys())[0]
         
-        raise ValueError(f"Cannot detect table name from '{file_path}'. Please specify table_name parameter.")
+        # If all else fails, raise error
+        available = ', '.join(self.table_definitions.keys())
+        raise ValueError(
+            f"Cannot auto-detect table name from '{filename}'.\n"
+            f"Available tables: {available}\n"
+            f"Please specify table_name explicitly using --table parameter"
+        )
+    
+    # ... rest of the methods stay the same (no changes needed) ...
     
     def _separate_records(self, df, errors):
         """Separate valid and rejected records"""
         
-        # Create set of rejected row indices (0-based)
         rejected_indices = set()
         for error in errors:
             idx = error.row_number - 1
             if 0 <= idx < len(df):
                 rejected_indices.add(idx)
         
-        # Create boolean masks
         valid_mask = pd.Series([i not in rejected_indices for i in range(len(df))], index=df.index)
         rejected_mask = ~valid_mask
         
-        # Split dataframes
         valid_df = df[valid_mask].copy()
         rejected_df = df[rejected_mask].copy()
         
-        # Add rejection details
         if len(rejected_df) > 0:
             rejection_map = {}
             error_count_map = {}
