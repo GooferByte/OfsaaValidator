@@ -1,10 +1,10 @@
-# src/orchestrator.py - COMPLETE WITH BOTH FIXES
+# src/orchestrator.py - COMPLETE WITH CORRECT INDENTATION
 
 from typing import Dict, Tuple
 from datetime import datetime
 from pathlib import Path
 import pandas as pd
-import re  # ADD THIS IMPORT
+import re
 
 from src.xml_parser import XMLTemplateParser
 from src.file_parser import FileParser
@@ -85,7 +85,7 @@ class ValidationOrchestrator:
         # Create summary
         summary = self._create_summary(len(df), len(valid_df), len(rejected_df), errors, start_time)
         
-        # FIXED: Create output directory with table name and filename
+        # Create output directory with table name and filename
         filename_stem = Path(file_path).stem
         output_dir = f"data/output/{table_name}/{filename_stem}"
         output_paths = self._save_outputs(valid_df, rejected_df, output_dir)
@@ -112,24 +112,24 @@ class ValidationOrchestrator:
     
     def _detect_table_name(self, file_path: str) -> str:
         """Auto-detect table name from filename with better matching (case-insensitive)"""
-    
+        
         filename = Path(file_path).stem.upper()
-    
+        
         # Remove common suffixes and date patterns
         clean_filename = filename
         clean_filename = re.sub(r'_?\d{8}', '', clean_filename)  # Remove YYYYMMDD
         clean_filename = re.sub(r'_?(DLY|MLY|DAILY|MONTHLY|WEEKLY)_?\d*', '', clean_filename, flags=re.IGNORECASE)
         clean_filename = clean_filename.strip('_')
-    
+        
         print(f"  Cleaned filename: {clean_filename}")
-    
+        
         # Create case-insensitive mapping of table names
         table_mapping = {name.upper(): name for name in self.table_definitions.keys()}
-    
+        
         # First: Try EXACT match (case-insensitive)
         if clean_filename in table_mapping:
             return table_mapping[clean_filename]
-    
+        
         # Second: Try exact match with common variations
         variation_mappings = {
             'ACCOUNTADDRESS': 'AccountAddress',
@@ -147,29 +147,28 @@ class ValidationOrchestrator:
             'DIM_PRODUCT': 'Product',
             'FCT_ACCOUNT_BALANCE': 'AccountBalance'
         }
-    
+        
         if clean_filename in variation_mappings:
             target_table = variation_mappings[clean_filename]
             # Check if this table exists (case-insensitive)
             for actual_name in self.table_definitions.keys():
                 if actual_name.upper() == target_table.upper():
                     return actual_name
-    
+        
         # Third: Try longest match (prefer ACCOUNTADDRESS over ACCOUNT)
-        # Sort table names by length (longest first) - case insensitive
         sorted_tables = sorted(self.table_definitions.keys(), key=lambda x: len(x), reverse=True)
-    
+        
         for table_name in sorted_tables:
             table_upper = table_name.upper()
-        
+            
             # Check if table name is in the cleaned filename
             if table_upper in clean_filename:
                 return table_name
-        
+            
             # Check if cleaned filename is in table name
             if clean_filename in table_upper:
                 return table_name
-    
+        
         # Fourth: Try fuzzy matching with pattern keywords
         patterns = {
             'ADDRESS': ['AccountAddress', 'Address'],
@@ -183,7 +182,7 @@ class ValidationOrchestrator:
             'PHONE': ['AccountPhone', 'Phone'],
             'EMAIL': ['AccountEmailAddress', 'Email']
         }
-    
+        
         for pattern, possible_tables in patterns.items():
             if pattern in clean_filename:
                 # Return the first matching table that exists (case-insensitive)
@@ -191,11 +190,11 @@ class ValidationOrchestrator:
                     for actual_name in self.table_definitions.keys():
                         if actual_name.upper() == target.upper():
                             return actual_name
-    
+        
         # Return first table if only one exists
         if len(self.table_definitions) == 1:
             return list(self.table_definitions.keys())[0]
-    
+        
         # If all else fails, raise error with suggestions
         available = ', '.join(self.table_definitions.keys())
         raise ValueError(
@@ -203,6 +202,7 @@ class ValidationOrchestrator:
             f"Available tables: {available}\n"
             f"Please specify table_name explicitly using --table parameter"
         )
+    
     def _separate_records(self, df, errors):
         """Separate valid and rejected records"""
         
