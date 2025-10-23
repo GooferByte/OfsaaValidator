@@ -61,10 +61,17 @@ class XMLTemplateParser:
         """Parse single XML template file"""
         
         try:
-            tree = ET.parse(xml_path)
-            root = tree.getroot()
+            # Read file content and strip any leading whitespace
+            with open(xml_path, 'r', encoding='utf-8') as f:
+                content = f.read().lstrip()
+            
+            # Parse from string
+            root = ET.fromstring(content)
             
             table_name = root.get('name')
+            if not table_name:
+                raise ValueError(f"Table name not found in {xml_path}")
+            
             table_desc = root.get('description', '')
             
             # Parse file format
@@ -73,12 +80,19 @@ class XMLTemplateParser:
             encoding = file_format.get('encoding', 'UTF-8') if file_format is not None else 'UTF-8'
             date_format = file_format.get('dateFormat', 'YYYYMMDD') if file_format is not None else 'YYYYMMDD'
             
-            # Parse columns
+            # Parse columns - Try both 'Columns' and 'columns' (case insensitive)
             columns = []
             columns_elem = root.find('Columns')
+            if columns_elem is None:
+                columns_elem = root.find('columns')
             
             if columns_elem is not None:
-                for col in columns_elem.findall('Column'):
+                # Try both 'Column' and 'column'
+                column_list = columns_elem.findall('Column')
+                if not column_list:
+                    column_list = columns_elem.findall('column')
+                
+                for col in column_list:
                     # Parse nullable
                     nullable_str = col.get('nullable', 'true').lower()
                     nullable = nullable_str in ['true', 'yes', '1']
@@ -93,8 +107,15 @@ class XMLTemplateParser:
                     # Parse requirement attribute (M=Mandatory, O=Optional)
                     requirement = col.get('requirement', 'O').upper()
                     
+                    # Parse position
+                    position_str = col.get('position', '0')
+                    try:
+                        position = int(position_str)
+                    except ValueError:
+                        position = 0
+                    
                     column_def = ColumnDefinition(
-                        position=int(col.get('position', 0)),
+                        position=position,
                         name=col.get('name', ''),
                         data_type=col.get('dataType', 'VARCHAR2'),
                         length=length,
@@ -103,6 +124,9 @@ class XMLTemplateParser:
                         description=col.get('description', '')
                     )
                     columns.append(column_def)
+            
+            if not columns:
+                print(f"  Warning: No columns found in {xml_path}")
             
             # Sort by position
             columns.sort(key=lambda x: x.position)
