@@ -1,4 +1,4 @@
-# src/validator.py - COMPLETE FIXED VERSION
+# src/validator.py - COMPLETE FIXED VERSION WITH REQUIREMENT SUPPORT
 
 import pandas as pd
 import re
@@ -42,7 +42,7 @@ class SchemaValidator:
         
         all_errors = []
         
-        # FIXED: Use enumerate to ensure integer row numbers
+        # Use enumerate to ensure integer row numbers
         for row_number, (idx, row) in enumerate(df.iterrows(), start=1):
             row_errors = self._validate_row(row, row_number)
             all_errors.extend(row_errors)
@@ -62,14 +62,18 @@ class SchemaValidator:
         for col_name, col_config in self.columns.items():
             value = row.get(col_name)
             
-            # 1. Mandatory check
-            if not col_config.nullable:
+            # 1. Mandatory check - Check BOTH requirement attribute AND nullable
+            # Priority: requirement="M" takes precedence
+            # A field is mandatory if: requirement="M" OR nullable=false
+            is_mandatory = (hasattr(col_config, 'requirement') and col_config.requirement == 'M') or (not col_config.nullable)
+            
+            if is_mandatory:
                 error = self._check_mandatory(value, col_config, row_number)
                 if error:
                     errors.append(error)
                     continue
             
-            # Skip other checks if value is empty
+            # Skip other checks if value is empty (and field is optional)
             if value is None or (isinstance(value, str) and value.strip() == ''):
                 continue
             
@@ -98,11 +102,18 @@ class SchemaValidator:
             # Generate fix recommendation
             fix_rec = self._get_mandatory_fix_recommendation(col_config.name)
             
+            # Determine why field is mandatory
+            requirement_info = ""
+            if hasattr(col_config, 'requirement') and col_config.requirement == 'M':
+                requirement_info = " (Requirement: M)"
+            elif not col_config.nullable:
+                requirement_info = " (Nullable: false)"
+            
             return ValidationError(
                 row_number=row_number,
                 column_name=col_config.name,
                 error_type='VALUE_MISSING',
-                error_message=f"{col_config.name} [Value Missing]",
+                error_message=f"{col_config.name} [Value Missing]{requirement_info}",
                 actual_value=value,
                 expected_value='Non-null value',
                 fix_recommendation=fix_rec
@@ -220,7 +231,9 @@ class SchemaValidator:
             'customer': 'Provide valid customer ID',
             'date': 'Add date in YYYYMMDD format (e.g., 20251015)',
             'status': 'Provide valid status code (e.g., ACTIVE, CLOSED)',
-            'type': 'Provide valid type code'
+            'type': 'Provide valid type code',
+            'address': 'Provide valid address information',
+            'seq': 'Provide valid sequence ID'
         }
         
         col_lower = col_name.lower()
